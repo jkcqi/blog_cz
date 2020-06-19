@@ -71,6 +71,7 @@ public class AdminController {
         user.setId(requestbody.get("id"));
         userService.deleteUserByID(user);
         return R.ok();
+
     }
 
     @RequestMapping("/artlist")
