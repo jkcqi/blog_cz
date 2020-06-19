@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.mapper.CommentMapper">
+  <resultMap id="BaseResultMap" type="com.blog.pojo.Comment">
+    <result column="id" jdbcType="INTEGER" property="id" />
+    <result column="comment_uid" jdbcType="INTEGER" property="commentUid" />
+    <result column="comment_boid" jdbcType="INTEGER" property="commentBoid" />
+    <result column="comment_arid" jdbcType="INTEGER" property="commentArid" />
+    <result column="commentcontext" jdbcType="VARCHAR" property="commentcontext" />
+    <result column="commenttime" jdbcType="TIMESTAMP" property="commenttime" />
+  </resultMap>
+  <resultMap id="CommentAndUserMap" type="com.blog.pojo.CommentContainer">
+    <result column="id" jdbcType="INTEGER" property="id" />
+    <result column="comment_uid" jdbcType="INTEGER" property="commentUid" />
+    <result column="comment_boid" jdbcType="INTEGER" property="commentBoid" />
+    <result column="comment_arid" jdbcType="INTEGER" property="commentArid" />
+    <result column="commentcontext" jdbcType="VARCHAR" property="commentcontext" />
+    <result column="commenttime" jdbcType="TIMESTAMP" property="commenttime" />
+    <association property="user" javaType="com.blog.pojo.User">
+      <id column="id" jdbcType="INTEGER" property="id"></id>
+      <result column="username" jdbcType="VARCHAR" property="username"></result>
+      <result column="email" jdbcType="VARCHAR" property="email"></result>
+    </association>
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, comment_uid, comment_boid, comment_arid, commentcontext, commenttime
+  </sql>
+  <select id="selectByExample" parameterType="com.blog.pojo.CommentExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from comment
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <delete id="deleteByExample" parameterType="com.blog.pojo.CommentExample">
+    delete from comment
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.blog.pojo.Comment">
+    insert into comment (id, comment_uid, comment_boid, 
+      comment_arid, commentcontext, commenttime
+      )
+    values (#{id,jdbcType=INTEGER}, #{commentUid,jdbcType=INTEGER}, #{commentBoid,jdbcType=INTEGER}, 
+      #{commentArid,jdbcType=INTEGER}, #{commentcontext,jdbcType=VARCHAR}, #{commenttime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.blog.pojo.Comment">
+    insert into comment
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="commentUid != null">
+        comment_uid,
+      </if>
+      <if test="commentBoid != null">
+        comment_boid,
+      </if>
+      <if test="commentArid != null">
+        comment_arid,
+      </if>
+      <if test="commentcontext != null">
+        commentcontext,
+      </if>
+      <if test="commenttime != null">
+        commenttime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="commentUid != null">
+        #{commentUid,jdbcType=INTEGER},
+      </if>
+      <if test="commentBoid != null">
+        #{commentBoid,jdbcType=INTEGER},
+      </if>
+      <if test="commentArid != null">
+        #{commentArid,jdbcType=INTEGER},
+      </if>
+      <if test="commentcontext != null">
+        #{commentcontext,jdbcType=VARCHAR},
+      </if>
+      <if test="commenttime != null">
+        #{commenttime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.blog.pojo.CommentExample" resultType="java.lang.Long">
+    select count(*) from comment
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update comment
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.commentUid != null">
+        comment_uid = #{record.commentUid,jdbcType=INTEGER},
+      </if>
+      <if test="record.commentBoid != null">
+        comment_boid = #{record.commentBoid,jdbcType=INTEGER},
+      </if>
+      <if test="record.commentArid != null">
+        comment_arid = #{record.commentArid,jdbcType=INTEGER},
+      </if>
+      <if test="record.commentcontext != null">
+        commentcontext = #{record.commentcontext,jdbcType=VARCHAR},
+      </if>
+      <if test="record.commenttime != null">
+        commenttime = #{record.commenttime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update comment
+    set id = #{record.id,jdbcType=INTEGER},
+      comment_uid = #{record.commentUid,jdbcType=INTEGER},
+      comment_boid = #{record.commentBoid,jdbcType=INTEGER},
+      comment_arid = #{record.commentArid,jdbcType=INTEGER},
+      commentcontext = #{record.commentcontext,jdbcType=VARCHAR},
+      commenttime = #{record.commenttime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <select id="selectCommentByArticleID" parameterType="int" resultMap="CommentAndUserMap">
+    SELECT * FROM `comment` AS ct,`user` AS us WHERE ct.comment_uid=us.id AND ct.comment_arid=#{id}
+  </select>
+</mapper>

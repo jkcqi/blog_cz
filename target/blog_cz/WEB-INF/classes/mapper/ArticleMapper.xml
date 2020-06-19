@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.mapper.ArticleMapper">
+  <resultMap id="BaseResultMap" type="com.blog.pojo.Article">
+    <result column="id" jdbcType="INTEGER" property="id" />
+    <result column="article_boid" jdbcType="INTEGER" property="articleBoid" />
+    <result column="articletitle" jdbcType="VARCHAR" property="articletitle" />
+    <result column="articleabstract" jdbcType="VARCHAR" property="articleabstract" />
+    <result column="ariticlecontext" jdbcType="VARCHAR" property="ariticlecontext" />
+    <result column="createtime" jdbcType="TIMESTAMP" property="createtime" />
+  </resultMap>
+  <resultMap id="UserAndArticleMap" type="com.blog.pojo.Article">
+    <id column="id" jdbcType="INTEGER" property="id"></id>
+    <result column="article_boid" jdbcType="INTEGER" property="articleBoid" />
+    <result column="articletitle" jdbcType="VARCHAR" property="articletitle" />
+    <result column="articleabstract" jdbcType="VARCHAR" property="articleabstract" />
+    <result column="createtime" jdbcType="TIMESTAMP" property="createtime" />
+    <result column="username" jdbcType="VARCHAR" property="username"/>
+  </resultMap>
+  <resultMap id="CommentMap" type="com.blog.pojo.Comment">
+    <result column="id" jdbcType="INTEGER" property="id" />
+    <result column="comment_uid" jdbcType="INTEGER" property="commentUid" />
+    <result column="comment_boid" jdbcType="INTEGER" property="commentBoid" />
+    <result column="comment_arid" jdbcType="INTEGER" property="commentArid" />
+    <result column="commentcontext" jdbcType="VARCHAR" property="commentcontext" />
+    <result column="commenttime" jdbcType="TIMESTAMP" property="commenttime" />
+  </resultMap>
+  <resultMap id="AllArticleInfoMap" type="com.blog.pojo.ArticleContainer">
+    <id column="id" jdbcType="INTEGER" property="id"></id>
+    <result column="article_boid" jdbcType="INTEGER" property="articleBoid" />
+    <result column="articletitle" jdbcType="VARCHAR" property="articletitle" />
+    <result column="articleabstract" jdbcType="VARCHAR" property="articleabstract" />
+    <result column="ariticlecontext" jdbcType="VARCHAR" property="ariticlecontext" />
+    <result column="createtime" jdbcType="TIMESTAMP" property="createtime" />
+    <association property="user" javaType="com.blog.pojo.User">
+      <id column="id" jdbcType="INTEGER" property="id"></id>
+      <result column="username" jdbcType="VARCHAR" property="username"></result>
+      <result column="email" jdbcType="VARCHAR" property="email"></result>
+    </association>
+    <collection property="tags"
+                javaType="java.util.ArrayList"
+                ofType="com.blog.pojo.Tag"
+                select="com.blog.mapper.TagMapper.selectTagByArticleID"
+                column="id">
+      <result column="tagid" jdbcType="INTEGER" property="tagid" />
+      <result column="tagname" jdbcType="VARCHAR" property="tagname" />
+    </collection>
+    <collection property="categories"
+                javaType="java.util.ArrayList"
+                ofType="com.blog.pojo.Category"
+                select="com.blog.mapper.CategoryMapper.selectCategoryByArticleID"
+                column="id">
+      <result column="id" jdbcType="INTEGER" property="id" />
+      <result column="categoryname" jdbcType="VARCHAR" property="categoryname" />
+    </collection>
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, article_boid, articletitle, articleabstract, ariticlecontext, createtime
+  </sql>
+  <select id="selectByExample" parameterType="com.blog.pojo.ArticleExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from article
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <delete id="deleteByExample" parameterType="com.blog.pojo.ArticleExample">
+    delete from article
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.blog.pojo.Article">
+    insert into article (id, article_boid, articletitle, 
+      articleabstract, ariticlecontext, createtime
+      )
+    values (#{id,jdbcType=INTEGER}, #{articleBoid,jdbcType=INTEGER}, #{articletitle,jdbcType=VARCHAR}, 
+      #{articleabstract,jdbcType=VARCHAR}, #{ariticlecontext,jdbcType=VARCHAR}, #{createtime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.blog.pojo.Article">
+    insert into article
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="articleBoid != null">
+        article_boid,
+      </if>
+      <if test="articletitle != null">
+        articletitle,
+      </if>
+      <if test="articleabstract != null">
+        articleabstract,
+      </if>
+      <if test="ariticlecontext != null">
+        ariticlecontext,
+      </if>
+      <if test="createtime != null">
+        createtime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="articleBoid != null">
+        #{articleBoid,jdbcType=INTEGER},
+      </if>
+      <if test="articletitle != null">
+        #{articletitle,jdbcType=VARCHAR},
+      </if>
+      <if test="articleabstract != null">
+        #{articleabstract,jdbcType=VARCHAR},
+      </if>
+      <if test="ariticlecontext != null">
+        #{ariticlecontext,jdbcType=VARCHAR},
+      </if>
+      <if test="createtime != null">
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.blog.pojo.ArticleExample" resultType="java.lang.Long">
+    select count(*) from article
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update article
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.articleBoid != null">
+        article_boid = #{record.articleBoid,jdbcType=INTEGER},
+      </if>
+      <if test="record.articletitle != null">
+        articletitle = #{record.articletitle,jdbcType=VARCHAR},
+      </if>
+      <if test="record.articleabstract != null">
+        articleabstract = #{record.articleabstract,jdbcType=VARCHAR},
+      </if>
+      <if test="record.ariticlecontext != null">
+        ariticlecontext = #{record.ariticlecontext,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createtime != null">
+        createtime = #{record.createtime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update article
+    set id = #{record.id,jdbcType=INTEGER},
+      article_boid = #{record.articleBoid,jdbcType=INTEGER},
+      articletitle = #{record.articletitle,jdbcType=VARCHAR},
+      articleabstract = #{record.articleabstract,jdbcType=VARCHAR},
+      ariticlecontext = #{record.ariticlecontext,jdbcType=VARCHAR},
+      createtime = #{record.createtime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <select id="selectArticleInfo" resultMap="UserAndArticleMap">
+    SELECT ae.id,ae.article_boid,ae.articletitle,ae.articleabstract,ae.createtime,us.username FROM article ae,`user` us WHERE ae.article_boid=us.id
+  </select>
+  <select id="selectCommentByID" parameterType="int" resultMap="CommentMap">
+    SELECT * FROM `comment` WHERE comment_arid=#{id}
+  </select>
+  <select id="selectArticleByID" resultMap="AllArticleInfoMap" parameterType="int">
+    SELECT * from article ac,`user` us WHERE ac.article_boid=us.id and ac.id=#{id}
+  </select>
+
+  <select id="selectArticleInfoByID" resultMap="UserAndArticleMap">
+    SELECT ae.id,ae.article_boid,ae.articletitle,ae.articleabstract,ae.createtime,us.username
+    FROM article ae,`user` us
+    WHERE ae.article_boid=us.id
+    AND ae.id=#{id}
+  </select>
+
+  <select id="selectArticleByUsername" parameterType="string" resultMap="UserAndArticleMap">
+    SELECT ae.id,ae.article_boid,ae.articletitle,ae.articleabstract,ae.createtime,us.username
+    FROM article ae,`user` us
+    WHERE ae.article_boid=us.id
+    AND us.username=#{username}
+  </select>
+</mapper>

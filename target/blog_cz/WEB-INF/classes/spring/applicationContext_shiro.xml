@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/mvc  http://www.springframework.org/schema/mvc/spring-mvc.xsd
+">
+
+
+    <bean id="credentialsMatcher" class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+        <property name="hashIterations" value="10"></property>
+        <property name="hashAlgorithmName" value="MD5"></property>
+        <property name="storedCredentialsHexEncoded" value="true"></property>
+    </bean>
+
+    <bean id="cacheManager" class="org.apache.shiro.cache.MemoryConstrainedCacheManager"></bean>
+    <bean id="authenticator" class="com.blog.shiro.authentication.MyAuthentication">
+        <property name="authenticationStrategy">
+            <bean class="org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy"></bean>
+        </property>
+    </bean>
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="cacheManager" ref="cacheManager"></property>
+        <property name="authenticator" ref="authenticator"></property>
+        <property name="realms">
+            <list value-type="org.apache.shiro.realm.Realm">
+                <ref bean="userRealm"></ref>
+                <ref bean="adminRealm"></ref>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="userRealm" class="com.blog.shiro.realm.UserRealm">
+        <property name="cacheManager" ref="cacheManager"></property>
+        <property name="credentialsMatcher" ref="credentialsMatcher"></property>
+    </bean>
+    <bean id="adminRealm" class="com.blog.shiro.realm.AdminRealm">
+        <property name="cacheManager" ref="cacheManager"></property>
+        <property name="credentialsMatcher" ref="credentialsMatcher"></property>
+    </bean>
+
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"></property>
+        <property name="loginUrl" value="/static/index.html"></property>
+        <property name="unauthorizedUrl" value="/static/index.html"></property>
+        <property name="filterChainDefinitions">
+            <value>
+                /logout = logout
+                /**=anon
+            </value>
+        </property>
+    </bean>
+
+</beans>
